@@ -15,7 +15,7 @@ from gaitmap.trajectory_reconstruction.trajectory_methods._kalman_numba_funcs im
     default_rts_kalman_forward_pass,
     madgwick_motion_update,
     rts_kalman_update_series,
-    rts_kalman_update_series_fast,
+    rts_kalman_update_series_fast_compiled,
     simple_navigation_equations,
 )
 from gaitmap.utils.consts import GF_POS, GF_VEL, SF_ACC, SF_GYR
@@ -523,7 +523,7 @@ class RtsKalmanFast(BaseTrajectoryMethod):
         gyro_data = np.deg2rad(data[SF_GYR].to_numpy())
         acc_data = data[SF_ACC].to_numpy()
 
-        states, covariances = rts_kalman_update_series_fast(
+        states, covariances = rts_kalman_update_series_fast_compiled(
             acc_data,
             gyro_data,
             initial_orientation,

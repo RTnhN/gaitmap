@@ -10,6 +10,7 @@ from gaitmap.trajectory_reconstruction.orientation_methods._madgwick import (
 )
 from gaitmap.utils.consts import GRAV_VEC
 from gaitmap.utils.fast_quaternion_math import multiply, quat_from_rotvec, rotate_vector
+import gaitmap.trajectory_reconstruction.trajectory_methods.compiled_kalman_funcs as compiled_kalman_funcs
 
 
 class SimpleZuptParameter(NamedTuple):
@@ -58,6 +59,21 @@ def rts_kalman_update_series_fast(
 ):
     """Perform a forward and backwards kalman pass with smoothing over the entire series."""
     return _rts_kalman_update_series_fast(
+        acc,
+        gyro,
+        initial_orientation,
+        sampling_rate_hz,
+        meas_noise,
+        process_noise,
+        zupts,
+    )
+
+
+def rts_kalman_update_series_fast_compiled(
+    acc, gyro, initial_orientation, sampling_rate_hz, meas_noise, process_noise, zupts
+):
+    """Perform a forward and backwards kalman pass with smoothing over the entire series."""
+    return _rts_kalman_update_series_fast_compiled(
         acc,
         gyro,
         initial_orientation,
@@ -392,7 +408,7 @@ def _rts_kalman_update_series_fast(
         zupts,
     )
     corrected_error_states, corrected_covariances = _rts_kalman_backward_pass(
-        *forward_eskf_results
+        *forward_eskf_results,
     )
 
     corrected_states = _rts_kalman_correction_pass(
@@ -401,7 +417,33 @@ def _rts_kalman_update_series_fast(
     return corrected_states, corrected_covariances
 
 
-@njit(cache=True, debug=True)
+def _rts_kalman_update_series_fast_compiled(
+    acc, gyro, initial_orientation, sampling_rate_hz, meas_noise, process_noise, zupts
+):
+    forward_eskf_results, forward_nominal_states = (
+        compiled_kalman_funcs.default_rts_kalman_forward_pass_fast(
+            acc,
+            gyro,
+            initial_orientation,
+            sampling_rate_hz,
+            meas_noise,
+            process_noise,
+            zupts,
+        )
+    )
+    corrected_error_states, corrected_covariances = (
+        compiled_kalman_funcs._rts_kalman_backward_pass(
+            *forward_eskf_results,
+        )
+    )
+
+    corrected_states = compiled_kalman_funcs._rts_kalman_correction_pass(
+        *forward_nominal_states,
+        corrected_error_states,
+    )
+    return corrected_states, corrected_covariances
+
+
 def default_rts_kalman_forward_pass_fast(  # pylint: disable=too-many-statements  # noqa: PLR0915
     accel, gyro, initial_orientation, sampling_rate_hz, meas_noise, process_noise, zupts
 ):
