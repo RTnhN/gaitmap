@@ -5,7 +5,7 @@ from gaitmap.utils.fast_quaternion_math import multiply, quat_from_rotvec, rotat
 
 from gaitmap.utils.consts import GRAV_VEC
 
-cc = CC("compiled_kalman_funcs")
+cc = CC("compiled_kalman_funcs_compiled")
 
 
 # @cc.export("cross_product_matrix", "float64[:, :](float64[:])")
