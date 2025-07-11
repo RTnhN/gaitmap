@@ -304,7 +304,6 @@ def find_extrema_in_radius(
     return extrema_func(windows, axis=1) + actual_window_start - start_padding
 
 
-@njit(cache=True)
 def _bool_fill(indices: np.ndarray, bool_values: np.ndarray, array: np.ndarray) -> np.ndarray:
     """Fill a preallocated array with bool_values.
 
