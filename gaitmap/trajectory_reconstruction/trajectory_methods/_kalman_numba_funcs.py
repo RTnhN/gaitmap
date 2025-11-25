@@ -10,7 +10,7 @@ from gaitmap.trajectory_reconstruction.orientation_methods._madgwick import (
 )
 from gaitmap.utils.consts import GRAV_VEC
 from gaitmap.utils.fast_quaternion_math import multiply, quat_from_rotvec, rotate_vector
-import gaitmap.trajectory_reconstruction.trajectory_methods.compiled_kalman_funcs_compiled as compiled_kalman_funcs
+import gaitmap.trajectory_reconstruction.trajectory_methods.compiled_kalman_funcs as compiled_kalman_funcs
 
 
 class SimpleZuptParameter(NamedTuple):
